@@ -7,21 +7,29 @@ open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Primitives
 open AlphaShelf.Model
 open AlphaShelf.BookStore
+open AlphaShelf.Queries
 open AlphaShelf.Render
 
 let private writeHtml (ctx: HttpContext) (html: string) =
     ctx.Response.ContentType <- "text/html; charset=utf-8"
     ctx.Response.WriteAsync(html)
 
+let private writeText (ctx: HttpContext) (text: string) =
+    ctx.Response.ContentType <- "text/plain; charset=utf-8"
+    ctx.Response.WriteAsync(text)
+
 let private getForm (form: IFormCollection) (name: string) =
     let mutable v = StringValues.Empty
 
     if form.TryGetValue(name, &v) then
-        v.ToString()
+        (v.ToString()).Trim()
     else
         ""
 
 let mapRoutes (app: WebApplication) =
+    app.MapGet("/health", RequestDelegate(fun ctx -> writeText ctx "AlphaShelf ok"))
+    |> ignore
+
     app.MapGet("/", RequestDelegate(fun ctx -> writeHtml ctx homeView))
     |> ignore
 
@@ -32,6 +40,13 @@ let mapRoutes (app: WebApplication) =
     |> ignore
 
     app.MapGet("/plain", RequestDelegate(fun ctx -> writeHtml ctx (plainView (all ()))))
+    |> ignore
+
+    app.MapGet(
+        "/export.txt",
+        RequestDelegate(fun ctx ->
+            let body = all () |> plaintextLines |> String.concat "\r\n"
+            writeText ctx body))
     |> ignore
 
     app.MapPost(

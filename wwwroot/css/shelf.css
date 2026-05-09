@@ -27,6 +27,11 @@ body {
 .name { font-weight: 700; color: var(--accent); text-decoration: none; }
 nav a { color: var(--muted); margin-left: 1rem; text-decoration: none; font-size: 0.95rem; }
 nav a:hover { color: var(--ink); }
+nav a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
 .main { max-width: 880px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
 .panel {
   background: var(--card);

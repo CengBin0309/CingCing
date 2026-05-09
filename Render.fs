@@ -1,10 +1,21 @@
 module AlphaShelf.Render
 
+open System
 open System.Net
 open AlphaShelf.Model
 open AlphaShelf.Queries
 
-let esc (s: string) = WebUtility.HtmlEncode(s)
+let esc (s: string | null) : string =
+    let u =
+        match s with
+        | null -> ""
+        | x -> x
+
+    let r = WebUtility.HtmlEncode(u)
+
+    match r with
+    | null -> ""
+    | x -> x
 
 let layout (title: string) (inner: string) =
     sprintf
@@ -24,6 +35,7 @@ let layout (title: string) (inner: string) =
     <a href="/shelf">Shelf</a>
     <a href="/stats">Stats</a>
     <a href="/plain">Plain list</a>
+    <a href="/export.txt">Export</a>
   </nav>
 </header>
 <main class="main">%s</main>
@@ -39,7 +51,7 @@ let homeView =
         """<section class="panel">
 <h1>Reading shelf</h1>
 <p class="sub">Add books, flip status, skim counts. Nothing is written to disk; restarting the process clears the list except the built-in seed on first run.</p>
-<p><a class="go" href="/shelf">Open shelf</a></p>
+<p><a class="go" href="/shelf">Open shelf</a> · <a class="go" href="/stats">Stats</a> · <a class="go" href="/export.txt">Download plain list</a></p>
 </section>"""
 
 let statusOptions (current: ReadingStatus) =
@@ -119,6 +131,7 @@ let shelfView (books: Book list) (msg: string option) =
 </label>
 <button type="submit" class="go">Save</button>
 </form>
+<p class="sub"><a href="/">Home</a> · <a href="/stats">Stats</a> · <a href="/plain">Plain list</a></p>
 </section>"""
             banner
             rows)
@@ -144,6 +157,7 @@ let statsView (books: Book list) =
 <ul class="lst">%s</ul>
 %s
 <p class="sub">Done count: %i · Reading: %i · To read: %i</p>
+<p class="sub"><a href="/">Home</a> · <a href="/shelf">Shelf</a> · <a href="/plain">Plain list</a></p>
 </section>"""
             (esc para)
             lines
@@ -165,5 +179,6 @@ let plainView (books: Book list) =
             """<section class="panel">
 <h1>Copy-friendly list</h1>
 <pre class="block">%s</pre>
+<p class="sub"><a href="/">Home</a> · <a href="/shelf">Shelf</a> · <a href="/stats">Stats</a></p>
 </section>"""
             body)
