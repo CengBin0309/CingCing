@@ -1,4 +1,11 @@
 **/bin/
 **/obj/
-.git
 **/.vs/
+**/.idea/
+**/*.user
+.git
+.gitignore
+Dockerfile*
+.dockerignore
+README.md
+screenshots/

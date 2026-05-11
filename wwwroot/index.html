@@ -1,0 +1,291 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ReadShelf</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="Scripts/ReadShelfWs.css" />
+    <style>
+        [ws-template], [ws-children-template] { display: none; }
+
+        :root {
+            --bg: #f4f2ee;
+            --surface: #fff;
+            --text: #1c1b19;
+            --muted: #5c5854;
+            --accent: #2a6f6b;
+            --accent-hover: #235e5a;
+            --border: #e2ddd6;
+            --radius: 10px;
+            --shadow: 0 1px 3px rgba(0,0,0,.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #1e3a38 0%, var(--accent) 100%);
+            color: #f7f6f3;
+            padding: 1.5rem clamp(1rem, 4vw, 2.5rem) 1.75rem;
+        }
+
+        .app-header h1 { margin: 0 0 0.25rem; font-size: clamp(1.35rem, 2.5vw, 1.75rem); font-weight: 600; }
+        .app-header p { margin: 0; opacity: 0.88; font-size: 0.95rem; max-width: 40rem; }
+
+        .shell {
+            max-width: 52rem;
+            margin: 0 auto;
+            padding: 1rem clamp(1rem, 3vw, 1.5rem) 2rem;
+        }
+
+        .strip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.85rem 1.1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow);
+        }
+
+        .strip.sub { font-size: 1.05rem; }
+        .sub-lead { margin: 0 0 0.35rem; font-size: 1.05rem; }
+        .sub-muted { margin: 0; font-size: 0.9rem; color: var(--muted); }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            align-items: center;
+            margin-bottom: 0.65rem;
+        }
+
+        .toolbar input[type="search"] {
+            flex: 1 1 12rem;
+            min-width: 0;
+            padding: 0.4rem 0.55rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font: inherit;
+        }
+
+        .toolbar select {
+            padding: 0.4rem 0.45rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font: inherit;
+        }
+
+        .btn-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.35rem 0; }
+        .btn-row:first-of-type { margin-top: 0; }
+
+        .edit-sheet {
+            margin-top: 0.75rem;
+            padding: 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: #faf9f7;
+        }
+
+        .edit-sheet h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+        .strip.audit-wrap :where(pre, .audit) {
+            margin: 0;
+            font-size: 0.88rem;
+            color: var(--muted);
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        }
+
+        .layout {
+            display: grid;
+            gap: 1rem;
+        }
+
+        @media (min-width: 44rem) {
+            .layout { grid-template-columns: 1.35fr 0.65fr; }
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.15rem 1.15rem;
+            box-shadow: var(--shadow);
+        }
+
+        .panel h2 {
+            margin: 0 0 0.75rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+        }
+
+        .panel h3 { margin: 1rem 0 0.5rem; font-size: 0.95rem; font-weight: 600; }
+        .panel h3:first-of-type { margin-top: 0; }
+
+        button {
+            cursor: pointer;
+            font: inherit;
+            border-radius: 8px;
+            border: none;
+            padding: 0.45rem 0.85rem;
+            background: var(--accent);
+            color: #fff;
+        }
+
+        button:hover { background: var(--accent-hover); }
+
+        button.btn-muted {
+            background: #8a8580;
+        }
+
+        button.btn-muted:hover { background: #706b66; }
+
+        .book-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .book-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.5rem 1rem;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .book-row:last-child { border-bottom: none; }
+
+        .book-title { font-weight: 600; display: block; }
+        .book-meta { font-size: 0.88rem; color: var(--muted); }
+        .book-actions { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+        .form-grid {
+            display: grid;
+            gap: 0.5rem;
+            margin: 0.5rem 0 0.65rem;
+        }
+
+        @media (min-width: 32rem) {
+            .form-grid { grid-template-columns: 1fr 1fr; }
+            .form-grid input:first-child { grid-column: 1 / -1; }
+        }
+
+        .form-grid input, .form-grid select {
+            padding: 0.45rem 0.55rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font: inherit;
+            min-width: 0;
+        }
+
+        .form-msg {
+            margin: 0.5rem 0 0;
+            min-height: 1.25rem;
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+
+        ul[ws-hole="Log"] { margin: 0.35rem 0 0; padding-left: 1.2rem; }
+        li { margin: 0.2rem 0; }
+    </style>
+    <script type="text/javascript" src="Scripts/ReadShelfWs.head.js"></script>
+</head>
+<body>
+    <header class="app-header">
+        <h1>ReadShelf</h1>
+        <p>Track a small home library: counts and notes above; list, add, update, and remove books below.</p>
+    </header>
+
+    <div class="shell">
+        <div id="sub" class="strip sub"></div>
+        <div id="audit" class="strip audit-wrap"></div>
+
+        <div id="main" class="layout" ws-children-template="Main">
+            <section class="panel">
+                <h2>Shelf</h2>
+                <div class="toolbar">
+                    <select ws-var="SortKey">
+                        <option value="title">Sort: title</option>
+                        <option value="status">Sort: status</option>
+                        <option value="pages">Sort: pages</option>
+                    </select>
+                </div>
+                <ul class="book-list" ws-hole="Books">
+                    <li ws-template="BookRow" class="book-row">
+                        <div class="book-main">
+                            <span class="book-title">${Title}</span>
+                            <span class="book-meta">${Author} · ${Status} · ${Pages}</span>
+                        </div>
+                        <div class="book-actions">
+                            <button type="button" ws-onclick="StartEdit">Edit</button>
+                            <button type="button" ws-onclick="Advance">Advance</button>
+                            <button type="button" class="btn-muted" ws-onclick="Remove">Remove</button>
+                        </div>
+                    </li>
+                </ul>
+                <div id="editsheet"></div>
+                <h3>Add a book</h3>
+                <div class="form-grid">
+                    <input ws-var="AddTitle" type="text" placeholder="Title" autocomplete="off" />
+                    <input ws-var="AddAuthor" type="text" placeholder="Author (optional)" />
+                    <input ws-var="AddPages" type="text" inputmode="numeric" placeholder="Pages (optional)" />
+                    <select ws-var="AddStatus">
+                        <option value="ToRead">To read</option>
+                        <option value="Reading">Reading</option>
+                        <option value="Done">Done</option>
+                    </select>
+                </div>
+                <button type="button" ws-onclick="AddBook">Add to shelf</button>
+                <div id="formhint" class="form-msg"></div>
+            </section>
+
+            <section class="panel">
+                <h2>Activity</h2>
+                <p class="btn-row">
+                    <button type="button" ws-onclick="RefreshLog">Reset sample books</button>
+                </p>
+                <h3>RPC (server)</h3>
+                <p class="btn-row">
+                    <button type="button" ws-onclick="RpcUtc">Get server UTC</button>
+                </p>
+                <h3>Log</h3>
+                <ul ws-hole="Log">
+                    <li ws-template="LogItem">${Msg}</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+    <div ws-template="EditForm" class="edit-sheet">
+        <h3>Edit “${EdTitle}”</h3>
+        <div class="form-grid">
+            <input ws-var="EdAuthor" type="text" placeholder="Author" autocomplete="off" />
+            <input ws-var="EdPages" type="text" inputmode="numeric" placeholder="Pages (optional)" />
+            <select ws-var="EdStatus">
+                <option value="ToRead">To read</option>
+                <option value="Reading">Reading</option>
+                <option value="Done">Done</option>
+            </select>
+        </div>
+        <p class="btn-row">
+            <button type="button" ws-onclick="SaveEdit">Save changes</button>
+            <button type="button" class="btn-muted" ws-onclick="CancelEdit">Cancel</button>
+        </p>
+    </div>
+
+    <script type="module" src="Scripts/ReadShelfWs.min.js"></script>
+</body>
+</html>
