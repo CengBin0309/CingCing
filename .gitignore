@@ -2,6 +2,7 @@
 *.user
 bin/
 obj/
+build/
 node_modules/
 websharper.log
 dist/
